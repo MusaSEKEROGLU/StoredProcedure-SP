@@ -1,0 +1,85 @@
+Create Procedure sp_MSBankCustomer1VirmanAccountNumber
+(
+@ProcessType nvarchar(50),
+@SenderAccountNumber nvarchar(8),
+@RecipientAccountNumber nvarchar(8),
+@OutgoingTransferAmount decimal(18,2),
+@PostedDate datetime
+)
+AS
+BEGIN TRANSACTION 
+Declare @AccountBalance decimal(18,2) 
+--MSBankCustomer1-1 , MSBankCustomer1-2
+IF @SenderAccountNumber = '11223344' AND @RecipientAccountNumber = '55667788'
+BEGIN 
+SELECT AccountBalance from MSBankCustomer1Accounts where AccountNumber = @SenderAccountNumber
+IF @OutgoingTransferAmount > @AccountBalance
+BEGIN
+print CAST(@SenderAccountNumber as nvarchar(8)) + 'Yetersiz Bakiye.Lütfen Bakiyenizi Kontrol Ediniz!'
+ROLLBACK TRANSACTION
+END 
+ELSE
+BEGIN
+UPDATE MSBankCustomer1Accounts SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+UPDATE MSBankCustomer1Accounts1Details SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts2Details SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+INSERT INTO dbo.MSBankCustomer1Accounts1Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber,
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, NULL, NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, @PostedDate,
+NULL, NULL, NULL, NULL, 'Musa ŞEKEROĞLU', @RecipientAccountNumber, 
+NULL, NULL, NULL, NULL)
+INSERT INTO dbo.MSBankCustomer1Accounts2Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber, 
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, NULL, 'Musa ŞEKEROĞLU', @SenderAccountNumber, NULL, NULL, NULL,
+NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, NULL, NULL,
+NULL, @PostedDate, NULL, NULL)
+COMMIT TRANSACTION
+END
+END
+--MSBankCustomer1-2 , MSBankCustomer1-1
+IF @SenderAccountNumber = '55667788' AND @RecipientAccountNumber = '11223344'
+BEGIN 
+SELECT AccountBalance from MSBankCustomer1Accounts where AccountNumber = @SenderAccountNumber
+IF @OutgoingTransferAmount > @AccountBalance
+BEGIN
+print CAST(@SenderAccountNumber as nvarchar(8)) + 'Yetersiz Bakiye.Lütfen Bakiyenizi Kontrol Ediniz!'
+ROLLBACK TRANSACTION
+END 
+ELSE
+BEGIN
+UPDATE MSBankCustomer1Accounts SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+UPDATE MSBankCustomer1Accounts2Details SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts1Details SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+INSERT INTO dbo.MSBankCustomer1Accounts2Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber,
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, NULL, NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, @PostedDate,
+NULL, NULL, NULL, NULL, 'Musa ŞEKEROĞLU', @RecipientAccountNumber, 
+NULL, NULL, NULL, NULL)
+INSERT INTO dbo.MSBankCustomer1Accounts1Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber, 
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, NULL, 'Musa ŞEKEROĞLU', @SenderAccountNumber, NULL, NULL, NULL,
+NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, NULL, NULL,
+NULL, @PostedDate, NULL, NULL)
+COMMIT TRANSACTION
+END
+END
+--ActivitiesId, ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber, SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, 
+--IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId
+
+--Money Transfer
+--exec sp_MSBankCustomer1VirmanAccountNumber 'Virman','11223344','55667788',2000,'2023-03-27 00:00:00'
+--exec sp_MSBankCustomer1VirmanAccountNumber 'Virman','55667788','11223344',2000,'2023-03-27 00:00:00'

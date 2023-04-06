@@ -1,0 +1,289 @@
+Create	 Procedure [dbo].[sp_SKRBankCustomer2EFTAccountNumber]
+(
+@ProcessType nvarchar(50),
+@TransactionDescription nvarchar(250),
+@SenderAccountNumber nvarchar(8),
+@RecipientNameSurname nvarchar(50),
+@RecipientAccountNumber nvarchar(8),
+@RecipientBranchCode int,
+@OutgoingTransferAmount decimal(18,2),
+@PostedDate datetime
+)
+AS
+BEGIN TRANSACTION 
+Declare @AccountBalance decimal(18,2) 
+--SKRBankCustomer2-1-MSBankCustomer1-1
+IF @SenderAccountNumber = '60708090' AND @RecipientAccountNumber = '11223344'
+BEGIN 
+SELECT AccountBalance from SKRBankCustomer2Accounts where AccountNumber = @SenderAccountNumber
+IF @OutgoingTransferAmount > @AccountBalance
+BEGIN
+print CAST(@SenderAccountNumber as nvarchar(8)) + 'Yetersiz Bakiye.Lütfen Bakiyenizi Kontrol Ediniz!'
+ROLLBACK TRANSACTION
+END 
+ELSE
+BEGIN
+UPDATE SKRBankCustomer2Accounts SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+UPDATE SKRBankCustomer2Accounts1Details SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts1Details SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+INSERT INTO dbo.SKRBankCustomer2Accounts1Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber,
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, @PostedDate,
+NULL, NULL, NULL, NULL, 'Musa ŞEKEROĞLU', @RecipientAccountNumber, 
+NULL, NULL, NULL, NULL)
+INSERT INTO dbo.MSBankCustomer1Accounts1Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber, 
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, 'Tamay Lina ŞEKEROĞLU', @SenderAccountNumber, NULL, NULL, NULL,
+NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, NULL, NULL,
+NULL, @PostedDate, NULL, NULL)
+COMMIT TRANSACTION
+END
+END
+--SKRBankCustomer2-1-MSBankCustomer1-2
+IF @SenderAccountNumber = '60708090' AND @RecipientAccountNumber = '55667788'
+BEGIN 
+SELECT AccountBalance from SKRBankCustomer2Accounts where AccountNumber = @SenderAccountNumber
+IF @OutgoingTransferAmount > @AccountBalance
+BEGIN
+print CAST(@SenderAccountNumber as nvarchar(8)) + 'Yetersiz Bakiye.Lütfen Bakiyenizi Kontrol Ediniz!'
+ROLLBACK TRANSACTION
+END 
+ELSE
+BEGIN
+UPDATE SKRBankCustomer2Accounts SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+UPDATE SKRBankCustomer2Accounts1Details SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts2Details SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+INSERT INTO dbo.SKRBankCustomer2Accounts1Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber,
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, @PostedDate,
+NULL, NULL, NULL, NULL, 'Musa ŞEKEROĞLU', @RecipientAccountNumber, 
+NULL, NULL, NULL, NULL)
+INSERT INTO dbo.MSBankCustomer1Accounts2Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber, 
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, 'Tamay Lina ŞEKEROĞLU', @SenderAccountNumber, NULL, NULL, NULL,
+NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, NULL, NULL,
+NULL, @PostedDate, NULL, NULL)
+COMMIT TRANSACTION
+END
+END
+--SKRBankCustomer2-1-MSBankCustomer2-1
+IF @SenderAccountNumber = '60708090' AND @RecipientAccountNumber = '12345678'
+BEGIN 
+SELECT AccountBalance from SKRBankCustomer2Accounts where AccountNumber = @SenderAccountNumber
+IF @OutgoingTransferAmount > @AccountBalance
+BEGIN
+print CAST(@SenderAccountNumber as nvarchar(8)) + 'Yetersiz Bakiye.Lütfen Bakiyenizi Kontrol Ediniz!'
+ROLLBACK TRANSACTION
+END 
+ELSE
+BEGIN
+UPDATE SKRBankCustomer2Accounts SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer2Accounts SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+UPDATE SKRBankCustomer2Accounts1Details SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer2Accounts1Details SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+INSERT INTO dbo.SKRBankCustomer2Accounts1Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber,
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, @PostedDate,
+NULL, NULL, NULL, NULL, 'Ayşe ŞEKEROĞLU', @RecipientAccountNumber, 
+NULL, NULL, NULL, NULL)
+INSERT INTO dbo.MSBankCustomer2Accounts1Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber, 
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, 'Tamay Lina ŞEKEROĞLU', @SenderAccountNumber, NULL, NULL, NULL,
+NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, NULL, NULL,
+NULL, @PostedDate, NULL, NULL)
+COMMIT TRANSACTION
+END
+END
+--SKRBankCustomer2-1-MSBankCustomer2-2
+IF @SenderAccountNumber = '60708090' AND @RecipientAccountNumber = '87654321'
+BEGIN 
+SELECT AccountBalance from SKRBankCustomer2Accounts where AccountNumber = @SenderAccountNumber
+IF @OutgoingTransferAmount > @AccountBalance
+BEGIN
+print CAST(@SenderAccountNumber as nvarchar(8)) + 'Yetersiz Bakiye.Lütfen Bakiyenizi Kontrol Ediniz!'
+ROLLBACK TRANSACTION
+END 
+ELSE
+BEGIN
+UPDATE SKRBankCustomer2Accounts SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer2Accounts SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+UPDATE SKRBankCustomer2Accounts1Details SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer2Accounts2Details SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+INSERT INTO dbo.SKRBankCustomer2Accounts1Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber,
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, @PostedDate,
+NULL, NULL, NULL, NULL, 'Ayşe ŞEKEROĞLU', @RecipientAccountNumber, 
+NULL, NULL, NULL, NULL)
+INSERT INTO dbo.MSBankCustomer2Accounts2Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber, 
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, 'Tamay Lina ŞEKEROĞLU', @SenderAccountNumber, NULL, NULL, NULL,
+NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, NULL, NULL,
+NULL, @PostedDate, NULL, NULL)
+COMMIT TRANSACTION
+END
+END
+
+
+
+--SKRBankCustomer2-2-MSBankCustomer1-1
+IF @SenderAccountNumber = '90805010' AND @RecipientAccountNumber = '11223344'
+BEGIN 
+SELECT AccountBalance from SKRBankCustomer2Accounts where AccountNumber = @SenderAccountNumber
+IF @OutgoingTransferAmount > @AccountBalance
+BEGIN
+print CAST(@SenderAccountNumber as nvarchar(8)) + 'Yetersiz Bakiye.Lütfen Bakiyenizi Kontrol Ediniz!'
+ROLLBACK TRANSACTION
+END 
+ELSE
+BEGIN
+UPDATE SKRBankCustomer2Accounts SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+UPDATE SKRBankCustomer2Accounts2Details SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts1Details SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+INSERT INTO dbo.SKRBankCustomer2Accounts2Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber,
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, @PostedDate,
+NULL, NULL, NULL, NULL, 'Musa ŞEKEROĞLU', @RecipientAccountNumber, 
+NULL, NULL, NULL, NULL)
+INSERT INTO dbo.MSBankCustomer1Accounts1Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber, 
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, 'Tamay Lina ŞEKEROĞLU', @SenderAccountNumber, NULL, NULL, NULL,
+NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, NULL, NULL,
+NULL, @PostedDate, NULL, NULL)
+COMMIT TRANSACTION
+END
+END
+--SKRBankCustomer2-2-MSBankCustomer1-2
+IF @SenderAccountNumber = '90805010' AND @RecipientAccountNumber = '55667788'
+BEGIN 
+SELECT AccountBalance from SKRBankCustomer2Accounts where AccountNumber = @SenderAccountNumber
+IF @OutgoingTransferAmount > @AccountBalance
+BEGIN
+print CAST(@SenderAccountNumber as nvarchar(8)) + 'Yetersiz Bakiye.Lütfen Bakiyenizi Kontrol Ediniz!'
+ROLLBACK TRANSACTION
+END 
+ELSE
+BEGIN
+UPDATE SKRBankCustomer2Accounts SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+UPDATE SKRBankCustomer2Accounts2Details SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer1Accounts2Details SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+INSERT INTO dbo.SKRBankCustomer2Accounts2Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber,
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, @PostedDate,
+NULL, NULL, NULL, NULL, 'Musa ŞEKEROĞLU', @RecipientAccountNumber, 
+NULL, NULL, NULL, NULL)
+INSERT INTO dbo.MSBankCustomer1Accounts2Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber, 
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, 'Tamay Lina ŞEKEROĞLU', @SenderAccountNumber, NULL, NULL, NULL,
+NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, NULL, NULL,
+NULL, @PostedDate, NULL, NULL)
+COMMIT TRANSACTION
+END
+END
+--SKRBankCustomer2-2-MSBankCustomer2-1
+IF @SenderAccountNumber = '90805010' AND @RecipientAccountNumber = '12345678'
+BEGIN 
+SELECT AccountBalance from SKRBankCustomer2Accounts where AccountNumber = @SenderAccountNumber
+IF @OutgoingTransferAmount > @AccountBalance
+BEGIN
+print CAST(@SenderAccountNumber as nvarchar(8)) + 'Yetersiz Bakiye.Lütfen Bakiyenizi Kontrol Ediniz!'
+ROLLBACK TRANSACTION
+END 
+ELSE
+BEGIN
+UPDATE SKRBankCustomer2Accounts SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer2Accounts SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+UPDATE SKRBankCustomer2Accounts2Details SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer2Accounts1Details SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+INSERT INTO dbo.SKRBankCustomer2Accounts2Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber,
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, @PostedDate,
+NULL, NULL, NULL, NULL, 'Ayşe ŞEKEROĞLU', @RecipientAccountNumber, 
+NULL, NULL, NULL, NULL)
+INSERT INTO dbo.MSBankCustomer2Accounts1Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber, 
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, 'Tamay Lina ŞEKEROĞLU', @SenderAccountNumber, NULL, NULL, NULL,
+NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, NULL, NULL,
+NULL, @PostedDate, NULL, NULL)
+COMMIT TRANSACTION
+END
+END
+--SKRBankCustomer2-2-MSBankCustomer2-2
+IF @SenderAccountNumber = '90805010' AND @RecipientAccountNumber = '87654321'
+BEGIN 
+SELECT AccountBalance from SKRBankCustomer2Accounts where AccountNumber = @SenderAccountNumber
+IF @OutgoingTransferAmount > @AccountBalance
+BEGIN
+print CAST(@SenderAccountNumber as nvarchar(8)) + 'Yetersiz Bakiye.Lütfen Bakiyenizi Kontrol Ediniz!'
+ROLLBACK TRANSACTION
+END 
+ELSE
+BEGIN
+UPDATE SKRBankCustomer2Accounts SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer2Accounts SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+UPDATE SKRBankCustomer2Accounts2Details SET AccountBalance = AccountBalance - @OutgoingTransferAmount WHERE AccountNumber = @SenderAccountNumber
+UPDATE MSBankCustomer2Accounts2Details SET AccountBalance = AccountBalance + @OutgoingTransferAmount WHERE AccountNumber = @RecipientAccountNumber
+INSERT INTO dbo.SKRBankCustomer2Accounts2Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber,
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, @PostedDate,
+NULL, NULL, NULL, NULL, 'Ayşe ŞEKEROĞLU', @RecipientAccountNumber, 
+NULL, NULL, NULL, NULL)
+INSERT INTO dbo.MSBankCustomer2Accounts2Activities
+(ProcessType, TransactionDescription, SenderNameSurname, SenderAccountNumber, 
+SenderIbanNumber, OutgoingTransferAmount, PostedDate, SenderBranchCode, IncomingTransferAccountNumber, IncomingTransferIbanNumber, IncomingTransferAmount, 
+RecipientNameSurname, RecipientAccountNumber, RecipientIbanNumber, IncomingTransferDate, RecipientBranchCode, AccountId) 
+values 
+(@ProcessType, @TransactionDescription, 'Tamay Lina ŞEKEROĞLU', @SenderAccountNumber, NULL, NULL, NULL,
+NULL, @SenderAccountNumber, NULL, @OutgoingTransferAmount, NULL, NULL,
+NULL, @PostedDate, NULL, NULL)
+COMMIT TRANSACTION
+END
+END
